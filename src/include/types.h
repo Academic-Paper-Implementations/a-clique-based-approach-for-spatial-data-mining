@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file types.h
  * @brief Core data type definitions for spatial colocation pattern mining
  *
@@ -27,6 +27,12 @@ using Colocation = std::vector<FeatureType>;
 /** @brief Type alias for a colocation instance (set of spatial instance pointers) */
 using ColocationInstance = std::vector<const struct SpatialInstance*>;
 
+/**
+ * @brief Định nghĩa kiểu dữ liệu cho một Grid (Ô lưới)
+ * Key: ID của ô lưới (ví dụ chuỗi "x_y")
+ * Value: Danh sách các con trỏ tới SpatialInstance nằm trong ô đó
+ */
+using GridMap = std::unordered_map<std::string, std::vector<const SpatialInstance*>>;
 
 // ============================================================================
 // Data Structures
@@ -43,13 +49,23 @@ struct SpatialInstance {
     double x, y;       ///< 2D spatial coordinates
 };
 
-/**
- * @brief Structure representing a star neighborhood
- *
- * A star neighborhood consists of a center instance and all its neighboring instances
- * within the distance threshold. This is a key concept in the joinless algorithm.
- */
-struct StarNeighborhood {
-    const SpatialInstance* center;                      ///< Center instance of the star
-    std::vector<const SpatialInstance*> neighbors;      ///< All neighbors within distance threshold
+struct NeighborList {
+    // Sử dụng con trỏ để đồng nhất với ColocationInstance và tối ưu bộ nhớ
+    std::vector<const SpatialInstance*> BNs;
+    std::vector<const SpatialInstance*> SNs;
+
+    // Helper: Thêm vào danh sách Big Neighbors
+    void addBN(const SpatialInstance* inst) {
+        BNs.push_back(inst);
+    }
+
+    // Helper: Thêm vào danh sách Small Neighbors
+    void addSN(const SpatialInstance* inst) {
+        SNs.push_back(inst);
+    }
+
+    // Kiểm tra xem có hàng xóm nào không
+    bool isEmpty() const {
+        return BNs.empty() && SNs.empty();
+    }
 };
