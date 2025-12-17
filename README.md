@@ -7,7 +7,7 @@ Implementation của thuật toán **Instances Driven Schema (IDS)** bằng C++ 
 Co-location pattern mining là kỹ thuật phát hiện các tập đặc trưng không gian (spatial features) thường xuyên xuất hiện gần nhau trong không gian địa lý. Thuật toán IDS sử dụng cách tiếp cận dựa trên clique để tìm kiếm các pattern này một cách hiệu quả.
 
 ### Tham khảo
-> Yoo, J. S., & Shekhar, S. (2006). A joinless approach for mining spatial colocation patterns. *IEEE Transactions on Knowledge and Data Engineering*, 18(10), 1323-1337.
+>...
 
 ## 🏗️ Cấu trúc dự án
 
