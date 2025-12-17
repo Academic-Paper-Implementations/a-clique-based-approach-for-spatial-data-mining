@@ -1,0 +1,33 @@
+﻿# Bỏ qua các file cấu hình của hệ điều hành và IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Bỏ qua các file cache của Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Bỏ qua môi trường ảo
+venv/
+.venv/
+env/
+.env
+
+# Bỏ qua file notebook checkpoints
+.ipynb_checkpoints/
+
+*.exe
+
+#Bỏ qua file biên dịch C++
+main
+spatial_index
+/.vs/slnx.sqlite
+/.vs
+/out/build/x64-Debug
+/out/build/x64-Release
+/CppProperties.json
+/CMakeSettings.json
+/mining_report.txt
+/data/new_test.csv
