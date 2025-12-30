@@ -32,7 +32,10 @@ using ColocationInstance = std::vector<const struct SpatialInstance*>;
  * Key: ID của ô lưới (ví dụ chuỗi "x_y")
  * Value: Danh sách các con trỏ tới SpatialInstance nằm trong ô đó
  */
-using GridMap = std::unordered_map<std::string, std::vector<const SpatialInstance*>>;
+struct Grid {
+    int grid_id;
+	std::vector<const SpatialInstance*> instances;
+};
 
 // ============================================================================
 // Data Structures

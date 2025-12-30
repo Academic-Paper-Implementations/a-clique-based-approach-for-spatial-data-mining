@@ -1,24 +1,19 @@
 ﻿#pragma once
-#include types.h
+#include "types.h"
 #include <vector>
 #include <unordered_map>
 #include <cmath>
 
 class NeighborhoodMgr {
 private:
-    // Output: nbs (neighbor list)
-    std::unordered_map<instanceID, NeighborList> neighborMap;
-
-    // Input param: min_dist
-    double distanceThreshold;
-
+    
     /**
      * @brief Bước 1: DivideSpace(min_dist, S)
      * Chia không gian thành các ô lưới dựa trên ngưỡng khoảng cách.
      * * @param instances Tập dữ liệu đầu vào (S)
      * @return GridMap Cấu trúc grids chứa các instance đã được phân chia
      */
-    GridMap divideSpace(const std::vector<SpatialInstance>& instances) const;
+    std::vector<Grid> divideSpace(double distanceThreshold, const std::vector<SpatialInstance>& instances) const;
 
     /**
      * @brief Bước 3: GetNeighborGrids(g)
@@ -26,7 +21,7 @@ private:
      * * @param currentGridKey Key của ô lưới hiện tại (g)
      * @return std::vector<std::string> Danh sách Key của các ô lân cận (ngrids)
      */
-    std::vector<std::string> getNeighborGrids(const std::string& currentGridKey) const;
+    std::vector<Grid*> getNeighborGrids(Grid&g, std::vector<Grid>& all_grids) const;
 
     /**
      * @brief Bước 6: Is_Neighbor(s, s', min_distance)
@@ -35,20 +30,8 @@ private:
      * @param s_prime Instance 2
      * @return true Nếu khoảng cách <= distanceThreshold
      */
-    bool isNeighbor(const SpatialInstance* s, const SpatialInstance* s_prime) const;
-
-    /**
-     * @brief Hàm hỗ trợ: Tính Key của Grid từ tọa độ
-     * Giúp xác định xem một instance thuộc về ô lưới nào (dùng trong DivideSpace).
-     */
-    std::string getGridKey(double x, double y) const;
+    bool isNeighbor(const SpatialInstance* s, const SpatialInstance* s_prime, double distanceThreshold) const;
 public:
-    /**
-     * @brief Constructor
-     * @param threshold Ngưỡng khoảng cách (min_dist)
-     */
-    NeighborhoodMgr(double threshold);
-
     /**
      * @brief Thực thi thuật toán Neighborhood Materialization
      * * Hàm này sẽ ghép nối logic giống hệt mã giả:
@@ -61,15 +44,9 @@ public:
      * * @param instances Danh sách tất cả các instance đầu vào (S)
      */
     void materialize(const std::vector<SpatialInstance>& instances);
-        
-    /**
-     * @brief Lấy kết quả danh sách hàng xóm của một instance cụ thể
-     * @param id ID của instance
-     */
-    const NeighborList& getNeighbors(const instanceID& id) const;
 
     /**
      * @brief Lấy toàn bộ map hàng xóm
      */
-    const std::unordered_map<instanceID, NeighborList>& getAllNeighbors() const;
+    const std::unordered_map<SpatialInstance, NeighborList>& getAllNeighbors() const;
 };
