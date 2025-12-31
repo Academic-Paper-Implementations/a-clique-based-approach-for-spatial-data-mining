@@ -106,7 +106,7 @@ void NeighborhoodMgr::materialize(const std::vector<SpatialInstance>& instances,
                 for (const auto* s_prime : ngrid->instances) {
                     if (s == s_prime) continue;  // Skip self-comparison
                     if (isNeighbor(s, s_prime, distanceThreshold)) {
-                        if (s->type >= s_prime->type) {
+                        if (s->type < s_prime->type) {
                             this->allNeighbors[s].addBN(s_prime);
                         } else {
                             this->allNeighbors[s].addSN(s_prime);
