@@ -108,7 +108,7 @@ void NeighborhoodMgr::materialize(const std::vector<SpatialInstance>& instances,
                     if (isNeighbor(s, s_prime, distanceThreshold)) {
                         if (s->type < s_prime->type) {
                             this->allNeighbors[s].addBN(s_prime);
-                        } else {
+                        } else if (s->type < s_prime->type){
                             this->allNeighbors[s].addSN(s_prime);
                         }
                     }
