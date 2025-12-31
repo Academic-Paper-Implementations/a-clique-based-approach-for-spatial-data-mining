@@ -6,14 +6,18 @@
 
 class NeighborhoodMgr {
 private:
-    
+	std::unordered_map<const SpatialInstance*, NeighborList> allNeighbors;  // Bản đồ tất cả hàng xóm
+
+	size_t gridCellsX;  // Số ô lưới theo chiều X
+	size_t gridCellsY;  // Số ô lưới theo chiều Y
+
     /**
      * @brief Bước 1: DivideSpace(min_dist, S)
      * Chia không gian thành các ô lưới dựa trên ngưỡng khoảng cách.
      * * @param instances Tập dữ liệu đầu vào (S)
      * @return GridMap Cấu trúc grids chứa các instance đã được phân chia
      */
-    std::vector<Grid> divideSpace(double distanceThreshold, const std::vector<SpatialInstance>& instances) const;
+    std::vector<Grid> divideSpace(double distanceThreshold, const std::vector<SpatialInstance>& instances);
 
     /**
      * @brief Bước 3: GetNeighborGrids(g)
@@ -43,10 +47,12 @@ public:
      * 6.       If isNeighbor(...) -> Add to BNs/SNs
      * * @param instances Danh sách tất cả các instance đầu vào (S)
      */
-    void materialize(const std::vector<SpatialInstance>& instances);
+    void materialize(const std::vector<SpatialInstance>& instances, const double& distanceThreshold);
 
     /**
      * @brief Lấy toàn bộ map hàng xóm
      */
-    const std::unordered_map<SpatialInstance, NeighborList>& getAllNeighbors() const;
+    const std::unordered_map<const SpatialInstance*, NeighborList>& getAllNeighbors() const;
+
+    void printResults() const;
 };
