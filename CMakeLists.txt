@@ -24,26 +24,30 @@ include_directories ("${CMAKE_SOURCE_DIR}/src/include")
 # Source Files
 # ==============================================================================
 # Find all .cpp files
-file(GLOB SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/src/*.cpp")
+#file(GLOB SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/src/*.cpp")
+set(TEST_SOURCES
+    "${CMAKE_SOURCE_DIR}/src/src/candidate_generation.cpp"
+    "${CMAKE_SOURCE_DIR}/src/test/test_candidate_generation.cpp"
+)
 
 # ==============================================================================
-# Build Target
+# Build Target - Main
 # ==============================================================================
-add_executable (main ${SOURCE_FILES})
+add_executable (test_generation ${TEST_SOURCES} "src/src/miner.cpp" "src/src/calculate_pi.cpp")
 
 # ======================================================================
 # Post-build: Copy configs
 # ======================================================================
-add_custom_command(TARGET main POST_BUILD
+add_custom_command(TARGET test_generation POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/config"
-        "$<TARGET_FILE_DIR:main>/config"
+        "$<TARGET_FILE_DIR:test_generation>/config"
     COMMENT "Copying config folder..."
 )
 
-add_custom_command(TARGET main POST_BUILD
+add_custom_command(TARGET test_generation POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/data"
-        "$<TARGET_FILE_DIR:main>/data"
+        "$<TARGET_FILE_DIR:test_generation>/data"
     COMMENT "Copying data folder..."
 )

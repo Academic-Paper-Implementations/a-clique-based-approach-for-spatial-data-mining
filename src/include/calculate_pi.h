@@ -17,8 +17,14 @@
 
 class CalculatePI {
 public:
-	std::vector<std::vector<SpatialInstance>> calculatePI(
+	std::vector<PatternKey> GetSuperSets(
 		const CHashStructure& chash,
 		const PatternKey& candidate
+	);
+
+	double calculatePI(
+		const CHashStructure& chash,
+		const PatternKey& candidate,
+		const std::map<FeatureType, int>& globalFeatureCounts
 	);
 };

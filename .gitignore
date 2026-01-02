@@ -31,3 +31,5 @@ spatial_index
 /CMakeSettings.json
 /mining_report.txt
 /data/new_test.csv
+/src/test
+/out/

@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
+#include <algorithm>
 
 
 /**
@@ -17,7 +18,7 @@ struct Node {
     std::vector<Node*> children;// Danh sách con
 
     // Constructor
-    Node(int id, IDSNode* p = nullptr) : instance_id(id), parent(p) {}
+    Node(const SpatialInstance* inst, Node* p = nullptr) : instance(inst), parent(p) {}
 
     // Destructor: Có thể đệ quy xóa con nếu cần, nhưng cẩn thận với RemoveAncestors
     ~Node() {
@@ -40,7 +41,7 @@ struct ITree {
     Node* Root; // Để gọi iTree.Root...
 
     ITree() {
-        root = new Node(-1); // Root ảo
+        Root = new Node(nullptr); // Root ảo
     }
 
     ~ITree() {
@@ -49,8 +50,8 @@ struct ITree {
 
     // Dòng 4 Algo 2: Thêm node đầu tiên từ root
     Node* AddHeadNode(const SpatialInstance* s) {
-        Node* newNode = new Node(s->id, root);
-        root->children.push_back(newNode);
+        Node* newNode = new Node(s, Root);
+        Root->children.push_back(newNode);
         return newNode;
     }
     // Dòng 13 Algo 2: Thêm danh sách con vào node hiện tại
@@ -79,5 +80,4 @@ public:
     // Constructor
     IDSTree(const std::vector<SpatialInstance>& instances, const std::unordered_map<SpatialInstance, NeighborList>& neighbor_list);
     std::vector<std::vector<SpatialInstance>> Run();
-}
-
+};

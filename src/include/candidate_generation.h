@@ -7,31 +7,21 @@
  */
 
 #pragma once
-
 #include "types.h"
 #include <vector>
 #include <map>
 #include <string>
 #include "ids_tree.h"
 
- // Key cho bảng băm: Là tập hợp các Feature đã sắp xếp (ví dụ: {A, B, C}
+// Key cho bảng băm: Là tập hợp các Feature đã sắp xếp (ví dụ: {A, B, C})
 using PatternKey = std::vector<FeatureType>;
 
-// Cấu trúc lưu trữ dữ liệu cho một mẫu (Key) cụ thể
-// Tương ứng với cấu trúc bên trong chash[newKey]
-struct PatternInstanceTable {
-    // Map từ Feature -> Danh sách các Instance ID (Cột)
-    // Ví dụ: Feature A -> [A1, A10, A20], Feature B -> [B2, B11, B21]
-    std::map<FeatureType, std::vector<SpatialInstance>> feature_columns;
-
-    // Dòng 6: chash[newKey][f].AddInstances(cl)
-    // Hàm này thêm instance ID thích hợp vào cột tương ứng với feature f
-    void AddInstance(FeatureType f, SpatialInstance instance) {
-        feature_columns[f].push_back(instance);
-    }
-};
-
-using CHashStructure = std::map<PatternKey, PatternInstanceTable>;
+// CHash Structure: Map từ PatternKey -> Map từ Feature -> Danh sách Cliques
+// Cấu trúc này khớp với thuật toán: chash[newKey][f].AddInstances(cl)
+// - chash[newKey] trả về std::map<FeatureType, std::vector<std::vector<SpatialInstance>>>
+// - chash[newKey][f] trả về std::vector<std::vector<SpatialInstance>> (danh sách các cliques)
+// - Mỗi cột feature f lưu trữ TẤT CẢ các cliques có chứa feature đó
+using CHashStructure = std::map<PatternKey, std::map<FeatureType, std::vector<SpatialInstance>>>;
 
 class CandidateGenerator{
 private:
