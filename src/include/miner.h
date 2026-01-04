@@ -23,5 +23,5 @@ public:
 	std::unordered_map<PatternKey, double>mineColocations(
 		CHashStructure& chash,
 		double minPrev
-	)
-}
+	);
+};
