@@ -70,13 +70,20 @@ int main() {
         // ---------------------------------------------------------
         // BƯỚC 0: Cấu hình và Dữ liệu
         // ---------------------------------------------------------
-        AppConfig config;
-        config.neighborDistance = 2.0; // Khoảng cách để A1, B1, C1 là hàng xóm
-        config.minPrev = 0.3;          // Ngưỡng phổ biến
+        // Load configurations from file
+        // Note: Assuming executable is run from the directory containing config.txt
+        AppConfig config = ConfigLoader::load("config.txt");
+        
+        std::cout << "Configuration Loaded:" << std::endl;
+        std::cout << " - Neighbor Distance: " << config.neighborDistance << std::endl;
+        std::cout << " - Min Prevalence: " << config.minPrev << std::endl;
+        std::cout << " - Dataset Path: " << config.datasetPath << std::endl;
 
-        std::cout << "Loading data..." << std::endl;
-        // Trong thực tế: data = loadFromCSV(config.datasetPath);
-        std::vector<SpatialInstance> data = createSampleData();
+        std::cout << "\nLoading data..." << std::endl;
+        std::vector<SpatialInstance> data = DataLoader::load_csv(config.datasetPath);
+        if (data.empty()) {
+             std::cout << "Warning: No data loaded or file not found at '" << config.datasetPath << "'." << std::endl;
+        }
         std::cout << "Loaded " << data.size() << " spatial instances.\n" << std::endl;
 
         // ---------------------------------------------------------
