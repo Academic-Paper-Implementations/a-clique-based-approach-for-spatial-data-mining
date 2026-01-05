@@ -24,30 +24,7 @@ std::vector<InstanceId> getIntersection(const std::vector<InstanceId>& v1, const
 
 #include <iostream>
 
-std::vector<SpatialInstance> createSampleData() {
-    std::vector<SpatialInstance> data;
-    // Giả lập dữ liệu không gian: Type, ID, X, Y
-    // Tạo một số pattern colocation tiềm năng gần nhau
 
-    // Cụm 1: Có A, B, C gần nhau
-    data.push_back({ "A", "A1", 1.0, 1.0 });
-    data.push_back({ "B", "B1", 1.2, 1.1 });
-    data.push_back({ "C", "C1", 1.1, 1.3 });
-
-    // Cụm 2: Có A, B gần nhau (không có C)
-    data.push_back({ "A", "A2", 5.0, 5.0 });
-    data.push_back({ "B", "B2", 5.1, 5.2 });
-
-    // Cụm 3: Có B, C gần nhau
-    data.push_back({ "B", "B3", 10.0, 10.0 });
-    data.push_back({ "C", "C2", 10.2, 10.1 });
-
-    // Nhiễu (Noise): Đứng một mình
-    data.push_back({ "A", "A3", 20.0, 20.0 });
-    data.push_back({ "D", "D1", 50.0, 50.0 });
-
-    return data;
-}
 
 void printPattern(const Colocation& pattern) {
     std::cout << "{ ";

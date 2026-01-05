@@ -19,8 +19,7 @@
 std::vector<InstanceId> getIntersection(const std::vector<InstanceId>& v1, const std::vector<InstanceId>& v2);
 
 
-// Helper to create dummy data
-std::vector<SpatialInstance> createSampleData();
+
 
 // Helper to print pattern
 void printPattern(const Colocation& pattern);
