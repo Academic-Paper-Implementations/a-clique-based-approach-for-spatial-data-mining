@@ -47,6 +47,7 @@ std::unordered_map<PatternKey, double>mineColocations(
 
         if (pi >= minPrev) {
             std::vector<PatternKey> subsets = GetAllSubsets(currCandidate);
+			cs[currCandidate] = pi;
             for (const auto& subset : subsets) {
                 double pi_subset = CalculatePI::calculatePI(chash, subset, globalFeatureCounts);
                 cs[subset] = pi_subset;
@@ -73,11 +74,37 @@ std::unordered_map<PatternKey, double>mineColocations(
 }
 
 std::vector<PatternKey> GetAllSubsets(const PatternKey& candidate) {
-    
+    std::vector<PatternKey> subsets;
+    int n = candidate.size();
+    int powerSetSize = 1 << n;
+
+    for (int i = 1; i < powerSetSize; ++i) {
+        PatternKey sub;
+        sub.reserve(n);
+
+        // Kiểm tra từng bit của i
+        for (int j = 0; j < n; ++j) {
+            if ((i >> j) & 1) {
+                sub.push_back(candidate[j]);
+            }
+        }
+        subsets.push_back(sub);
+    }
+
+    return subsets;
 }
 
 std::vector<PatternKey> GetDirectSub(const PatternKey& candidate) {
+    std::vector<PatternKey> directSubsets;
 
+    if (candidate.empty()) return directSubsets;
+    for (size_t i = 0; i < candidate.size(); ++i) {
+        PatternKey sub = candidate;
+        sub.erase(sub.begin() + i);
+        directSubsets.push_back(sub);
+    }
+
+    return directSubsets;
 }
 
 void AddWithSort(std::vector<PatternKey>& candidates, const std::vector<PatternKey>& newPatterns) {
