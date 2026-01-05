@@ -13,15 +13,18 @@
 #include "candidate_generation.h" // Để sử dụng cấu trúc CHash
 #include <vector>
 #include <algorithm>
+#include "ids_tree.h"
 
 class PrevalentColocationMiner {
 private:
 	double minPrev;
 	NeighborhoodMgr* neighborhoodMgr;
-	std::vector<std::vector<SpatialInstance>> GetAllSubsets(const PatternKey& candidate);
+	std::vector<PatternKey> GetAllSubsets(const PatternKey& candidate);
+	std::vector<PatternKey> GetDirectSub(const PatternKey& candidate);
 public:
 	std::unordered_map<PatternKey, double>mineColocations(
 		CHashStructure& chash,
-		double minPrev
+		double minPrev,
+		const std::vector<SpatialInstance>& instances
 	);
 };

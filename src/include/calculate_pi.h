@@ -17,12 +17,12 @@
 
 class CalculatePI {
 public:
-	std::vector<PatternKey> GetSuperSets(
+	static std::vector<PatternKey> GetSuperSets(
 		const CHashStructure& chash,
 		const PatternKey& candidate
 	);
 
-	double calculatePI(
+	static double calculatePI(
 		const CHashStructure& chash,
 		const PatternKey& candidate,
 		const std::map<FeatureType, int>& globalFeatureCounts
