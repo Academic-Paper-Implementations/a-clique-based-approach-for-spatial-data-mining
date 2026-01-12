@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file types.h
  * @brief Core data type definitions for spatial colocation pattern mining
  *
@@ -15,11 +15,15 @@
  // Type Aliases
  // ============================================================================
 
+struct SpatialInstance; // Forward decl
+
  /** @brief Type alias for feature types (e.g., "Restaurant", "Hotel") */
 using FeatureType = std::string;
 
 /** @brief Type alias for instance identifiers (e.g., "A1", "B2") */
 using instanceID = std::string;
+using InstanceId = instanceID;
+using Instance = SpatialInstance;
 
 /** @brief Type alias for a colocation pattern (set of feature types) */
 using Colocation = std::vector<FeatureType>;
@@ -71,4 +75,17 @@ struct NeighborList {
     bool isEmpty() const {
         return BNs.empty() && SNs.empty();
     }
+};
+
+// Struct đại diện cho một node trong cây I-tree
+// Theo Definition 5 trong paper: contains instance-name and node-link
+struct IDSNode {
+    InstanceId instance_id;     // instance-name
+    IDSNode* right_sibling;     // node-link: links to the right sibling node
+    IDSNode* first_child;       // Pointer to the first child (để duyệt xuống dưới)
+    IDSNode* parent;            // Pointer to parent (để hỗ trợ pruning/RemoveAncestors)
+
+    // Constructor
+    IDSNode(InstanceId id)
+        : instance_id(id), right_sibling(nullptr), first_child(nullptr), parent(nullptr) {}
 };
