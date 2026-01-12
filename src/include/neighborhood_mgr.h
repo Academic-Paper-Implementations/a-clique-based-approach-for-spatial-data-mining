@@ -55,4 +55,7 @@ public:
     const std::unordered_map<const SpatialInstance*, NeighborList>& getAllNeighbors() const;
 
     void printResults() const;
+
+    // Helper for IDSTree
+    std::vector<instanceID> getBigNeighbors(const instanceID& id) const;
 };

@@ -10,7 +10,7 @@ project ("Clique based")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set C++17 standard
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ==============================================================================
@@ -25,29 +25,26 @@ include_directories ("${CMAKE_SOURCE_DIR}/src/include")
 # ==============================================================================
 # Find all .cpp files
 #file(GLOB SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/src/*.cpp")
-set(TEST_SOURCES
-    "${CMAKE_SOURCE_DIR}/src/src/candidate_generation.cpp"
-    "${CMAKE_SOURCE_DIR}/src/test/test_candidate_generation.cpp"
-)
+file(GLOB SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/src/*.cpp")
 
 # ==============================================================================
 # Build Target - Main
 # ==============================================================================
-add_executable (test_generation ${TEST_SOURCES} "src/src/miner.cpp" "src/src/calculate_pi.cpp")
+add_executable (main ${SOURCE_FILES})
 
 # ======================================================================
 # Post-build: Copy configs
 # ======================================================================
-add_custom_command(TARGET test_generation POST_BUILD
+add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/config"
-        "$<TARGET_FILE_DIR:test_generation>/config"
+        "$<TARGET_FILE_DIR:main>/config"
     COMMENT "Copying config folder..."
 )
 
-add_custom_command(TARGET test_generation POST_BUILD
+add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/data"
-        "$<TARGET_FILE_DIR:test_generation>/data"
+        "$<TARGET_FILE_DIR:main>/data"
     COMMENT "Copying data folder..."
 )

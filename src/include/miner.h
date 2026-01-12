@@ -14,6 +14,7 @@
 #include <vector>
 #include <algorithm>
 #include "ids_tree.h"
+#include <map>
 
 class PrevalentColocationMiner {
 private:
@@ -22,7 +23,7 @@ private:
 	std::vector<PatternKey> GetAllSubsets(const PatternKey& candidate);
 	std::vector<PatternKey> GetDirectSub(const PatternKey& candidate);
 public:
-	std::unordered_map<PatternKey, double>mineColocations(
+	std::map<PatternKey, double>mineColocations(
 		CHashStructure& chash,
 		double minPrev,
 		const std::vector<SpatialInstance>& instances

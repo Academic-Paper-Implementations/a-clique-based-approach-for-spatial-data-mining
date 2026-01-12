@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file types.h
  * @brief Core data type definitions for spatial colocation pattern mining
  *
@@ -14,6 +14,8 @@
  // ============================================================================
  // Type Aliases
  // ============================================================================
+
+struct SpatialInstance; // Forward decl
 
  /** @brief Type alias for feature types (e.g., "Restaurant", "Hotel") */
 using FeatureType = std::string;
@@ -50,6 +52,19 @@ struct SpatialInstance {
     FeatureType type;  ///< Feature type of this instance (e.g., "A", "B")
     instanceID id;     ///< Unique identifier (e.g., "A1", "B2")
     double x, y;       ///< 2D spatial coordinates
+
+	// Comparison operator for use in std::set and other ordered containers
+    bool operator<(const SpatialInstance& other) const {
+        // Compare by id first (since it's unique)
+        // If you want to compare by type first, then id, use:
+        // if (type != other.type) return type < other.type;
+        return id < other.id;
+    }
+    
+    // Optional: Equality operator for completeness
+    bool operator==(const SpatialInstance& other) const {
+        return id == other.id && type == other.type && x == other.x && y == other.y;
+    }
 };
 
 struct NeighborList {
@@ -71,4 +86,17 @@ struct NeighborList {
     bool isEmpty() const {
         return BNs.empty() && SNs.empty();
     }
+};
+
+// Struct đại diện cho một node trong cây I-tree
+// Theo Definition 5 trong paper: contains instance-name and node-link
+struct IDSNode {
+    instanceID instance_id;     // instance-name
+    IDSNode* right_sibling;     // node-link: links to the right sibling node
+    IDSNode* first_child;       // Pointer to the first child (để duyệt xuống dưới)
+    IDSNode* parent;            // Pointer to parent (để hỗ trợ pruning/RemoveAncestors)
+
+    // Constructor
+    IDSNode(instanceID id)
+        : instance_id(id), right_sibling(nullptr), first_child(nullptr), parent(nullptr) {}
 };

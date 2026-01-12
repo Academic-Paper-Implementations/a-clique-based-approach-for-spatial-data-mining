@@ -6,6 +6,11 @@
 #include "calculate_pi.h"
 #include "candidate_generation.h"
 #include <ranges>
+#include <map>
+#include <vector>
+#include <string>
+
+void AddWithSort(std::vector<PatternKey>& candidates, const std::vector<PatternKey>& newPatterns);
 
 std::map<FeatureType, int> countInstancesByFeature(const std::vector<SpatialInstance>& instances) {
     std::map<FeatureType, int> featureCount;
@@ -21,12 +26,12 @@ std::map<FeatureType, int> countInstancesByFeature(const std::vector<SpatialInst
     return featureCount;
 }
 
-std::unordered_map<PatternKey, double>mineColocations(
+std::map<PatternKey, double>PrevalentColocationMiner::mineColocations(
     CHashStructure& chash,
     double minPrev,
 	const std::vector<SpatialInstance>& instances
 ) {
-	std::unordered_map<PatternKey, double> cs;
+	std::map<PatternKey, double> cs;
     std::map<FeatureType, int> globalFeatureCounts = countInstancesByFeature(instances);
     std::vector<PatternKey> candidates;
 	candidates.reserve(chash.size());
@@ -71,19 +76,20 @@ std::unordered_map<PatternKey, double>mineColocations(
 			AddWithSort(candidates, directSubs);
         }
     }
+    return cs;
 }
 
-std::vector<PatternKey> GetAllSubsets(const PatternKey& candidate) {
+std::vector<PatternKey> PrevalentColocationMiner::GetAllSubsets(const PatternKey& candidate) {
     std::vector<PatternKey> subsets;
-    int n = candidate.size();
-    int powerSetSize = 1 << n;
+    size_t n = candidate.size();
+    size_t powerSetSize = 1ULL << n;
 
-    for (int i = 1; i < powerSetSize; ++i) {
+    for (size_t i = 1; i < powerSetSize; ++i) {
         PatternKey sub;
         sub.reserve(n);
 
         // Kiểm tra từng bit của i
-        for (int j = 0; j < n; ++j) {
+        for (size_t j = 0; j < n; ++j) {
             if ((i >> j) & 1) {
                 sub.push_back(candidate[j]);
             }
@@ -94,7 +100,7 @@ std::vector<PatternKey> GetAllSubsets(const PatternKey& candidate) {
     return subsets;
 }
 
-std::vector<PatternKey> GetDirectSub(const PatternKey& candidate) {
+std::vector<PatternKey> PrevalentColocationMiner::GetDirectSub(const PatternKey& candidate) {
     std::vector<PatternKey> directSubsets;
 
     if (candidate.empty()) return directSubsets;
@@ -106,11 +112,13 @@ std::vector<PatternKey> GetDirectSub(const PatternKey& candidate) {
 
     return directSubsets;
 }
-
+// Định nghĩa hàm AddWithSort (đã khai báo prototype ở trên)
 void AddWithSort(std::vector<PatternKey>& candidates, const std::vector<PatternKey>& newPatterns) {
     candidates.insert(candidates.end(), newPatterns.begin(), newPatterns.end());
+
+    // Sort giảm dần theo kích thước (size)
     std::sort(candidates.begin(), candidates.end(),
         [](const PatternKey& a, const PatternKey& b) {
             return a.size() > b.size();
-		});
+        });
 }

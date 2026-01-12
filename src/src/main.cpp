@@ -9,84 +9,64 @@
  * 4. Candidate Generation (Algo 4)
  * 5. Prevalent Filtering (Algo 5 & 6)
  */
-
 #include <iostream>
 #include <vector>
 #include <string>
 #include <map>
-
+#include <unordered_map>
  // Include các header đã định nghĩa
+#include "miner.h"
 #include "config.h"
 #include "types.h"
 #include "neighborhood_mgr.h"
-#include "ids.h"
+#include "ids_tree.h"
 #include "candidate_generation.h"
-#include "miner.h"
+#include "calculate_pi.h"
+#include "data_loader.h"
+#include "utils.h"
 
-// ============================================================================
-// HÀM HỖ TRỢ: TẠO DỮ LIỆU MẪU (DUMMY DATA)
-// ============================================================================
-std::vector<SpatialInstance> createSampleData() {
-    std::vector<SpatialInstance> data;
-    // Giả lập dữ liệu không gian: Type, ID, X, Y
-    // Tạo một số pattern colocation tiềm năng gần nhau
 
-    // Cụm 1: Có A, B, C gần nhau
-    data.push_back({ "A", "A1", 1.0, 1.0 });
-    data.push_back({ "B", "B1", 1.2, 1.1 });
-    data.push_back({ "C", "C1", 1.1, 1.3 });
-
-    // Cụm 2: Có A, B gần nhau (không có C)
-    data.push_back({ "A", "A2", 5.0, 5.0 });
-    data.push_back({ "B", "B2", 5.1, 5.2 });
-
-    // Cụm 3: Có B, C gần nhau
-    data.push_back({ "B", "B3", 10.0, 10.0 });
-    data.push_back({ "C", "C2", 10.2, 10.1 });
-
-    // Nhiễu (Noise): Đứng một mình
-    data.push_back({ "A", "A3", 20.0, 20.0 });
-    data.push_back({ "D", "D1", 50.0, 50.0 });
-
-    return data;
-}
-
-// Hàm hỗ trợ in kết quả pattern (Colocation là vector<string>)
-void printPattern(const Colocation& pattern) {
-    std::cout << "{ ";
-    for (size_t i = 0; i < pattern.size(); ++i) {
-        std::cout << pattern[i] << (i < pattern.size() - 1 ? ", " : " ");
-    }
-    std::cout << "}";
-}
 
 // ============================================================================
 // MAIN FUNCTION
 // ============================================================================
-int main() {
+int main(int argc, char* argv[]) {
     try {
         std::cout << "=== STARTING CLIQUE-BASED COLOCATION MINING ===\n" << std::endl;
 
         // ---------------------------------------------------------
         // BƯỚC 0: Cấu hình và Dữ liệu
         // ---------------------------------------------------------
-        AppConfig config;
-        config.neighborDistance = 2.0; // Khoảng cách để A1, B1, C1 là hàng xóm
-        config.minPrev = 0.3;          // Ngưỡng phổ biến
+        // Load configurations from file
+        // Note: Assuming executable is run from the directory containing config.txt
+        AppConfig config = ConfigLoader::load("config.txt");
+        
+        std::cout << "Configuration Loaded:" << std::endl;
+        std::cout << " - Neighbor Distance: " << config.neighborDistance << std::endl;
+        std::cout << " - Min Prevalence: " << config.minPrev << std::endl;
+        std::cout << " - Dataset Path: " << config.datasetPath << std::endl;
 
-        std::cout << "Loading data..." << std::endl;
-        // Trong thực tế: data = loadFromCSV(config.datasetPath);
-        std::vector<SpatialInstance> data = createSampleData();
+        std::cout << "\nLoading data..." << std::endl;
+        std::vector<SpatialInstance> data = DataLoader::load_csv(config.datasetPath);
+        if (data.empty()) {
+             std::cout << "Warning: No data loaded or file not found at '" << config.datasetPath << "'." << std::endl;
+        }
         std::cout << "Loaded " << data.size() << " spatial instances.\n" << std::endl;
+
+        // Tạo map để lookup nhanh từ ID -> SpatialInstance (Cần cho Bước 3)
+        std::unordered_map<instanceID, SpatialInstance> instanceLookup;
+        for (const auto& inst : data) {
+            instanceLookup[inst.id] = inst;
+        }
 
         // ---------------------------------------------------------
         // BƯỚC 1: Neighborhood Materialization (Algorithm 1)
         // ---------------------------------------------------------
         std::cout << ">>> Step 1: Running Neighborhood Materialization..." << std::endl;
-        NeighborhoodMgr neighborMgr(config.neighborDistance);
+        NeighborhoodMgr neighborMgr;
 
         // Gọi hàm materialize để tính toán BNs, SNs
-        neighborMgr.materialize(data);
+        neighborMgr.materialize(data, config.neighborDistance);
 
         std::cout << "Neighborhoods materialized." << std::endl;
 
@@ -94,25 +74,41 @@ int main() {
         // BƯỚC 2: IDS Algorithm (Algorithm 2)
         // ---------------------------------------------------------
         std::cout << "\n>>> Step 2: Running IDS (Instance-Driven Search)..." << std::endl;
-
-        // Khởi tạo IDSMiner với map hàng xóm từ bước 1
-        IDSMiner idsMiner(neighborMgr.getAllNeighbors());
+        IDSTree idsMiner(neighborMgr, data);
 
         // Chạy thuật toán tìm Row-instances cliques (I-Cliques)
-        std::vector<ColocationInstance> cliques = idsMiner.run(data);
+        std::vector<std::vector<instanceID>> rawCliques = idsMiner.run();
 
-        std::cout << "Found " << cliques.size() << " cliques (row instances)." << std::endl;
+        std::cout << "Found " << rawCliques.size() << " cliques (row instances)." << std::endl;
 
         // ---------------------------------------------------------
         // BƯỚC 3: Candidate Generation (Algorithm 4)
         // ---------------------------------------------------------
         std::cout << "\n>>> Step 3: Generating Candidates..." << std::endl;
-        CandidateGenerator candidateGen;
 
         // Chuyển đổi từ I-Cliques sang cấu trúc C-Hash
-        CHash cHash = candidateGen.generate(cliques);
+        // IDSTree trả về ID (string), nhưng CandidateGenerator cần SpatialInstance (object).
+        std::vector<std::vector<SpatialInstance>> objectCliques;
+        objectCliques.reserve(rawCliques.size());
 
-        std::cout << "C-Hash structure built. Keys generated: " << cHash.data.size() << std::endl;
+        for (const auto& rowIds : rawCliques) {
+            std::vector<SpatialInstance> rowObjs;
+            rowObjs.reserve(rowIds.size());
+            for (const auto& id : rowIds) {
+                // Tìm object tương ứng với ID
+                if (instanceLookup.find(id) != instanceLookup.end()) {
+                    rowObjs.push_back(instanceLookup[id]);
+                }
+            }
+            objectCliques.push_back(rowObjs);
+        }
+
+        CandidateGenerator candidateGen;
+
+        // SỬA: Tên hàm là Candidate_generation và trả về CHashStructure
+        CHashStructure cHash = candidateGen.Candidate_generation(objectCliques);
+
+        std::cout << "C-Hash structure built. Number of Pattern Keys: " << cHash.size() << std::endl;
 
         // ---------------------------------------------------------
         // BƯỚC 4: Prevalent Co-locations Filtering (Algorithm 5)
@@ -124,20 +120,22 @@ int main() {
            Trong file miner.h bạn định nghĩa chỉ nhận minPrev, nên ở đây ta giả định
            CoLocationMiner sẽ tự đếm hoặc được set dữ liệu này bên trong.
         */
-        CoLocationMiner miner(config.minPrev);
+        PrevalentColocationMiner miner;
 
+        // SỬA: Hàm mineColocations nhận (chash, minPrev, instances)
+        // Kết quả trả về là map<PatternKey, double>
         // Thực hiện lọc và tính PI
-        ResultList results = miner.filter(cHash);
-
+        std::map<PatternKey, double> results = miner.mineColocations(cHash, config.minPrev, data);
+        
         // ---------------------------------------------------------
         // KẾT QUẢ
         // ---------------------------------------------------------
         std::cout << "\n=== FINAL RESULTS (Prevalent Co-locations) ===" << std::endl;
-        if (results.results.empty()) {
+        if (results.empty()) {
             std::cout << "No prevalent patterns found." << std::endl;
         }
         else {
-            for (const auto& res : results.results) {
+            for (const auto& res : results) {
                 // res.first là Colocation (vector<string>), res.second là PI (double)
                 std::cout << "Pattern: ";
                 printPattern(res.first);

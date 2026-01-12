@@ -37,10 +37,10 @@ struct AppConfig {
      * by loading from a configuration file.
      */
     AppConfig()
-        : datasetPath("data/sample_data.csv"),
+        : datasetPath("data/LasVegas_x_y_alphabet_version_03_2.csv"),
         outputPath("src/c++/output/rules.txt"),
-        neighborDistance(5.0),
-        minPrev(0.6),
+        neighborDistance(160.0),
+        minPrev(0.15),
         minCondProb(0.5),
         debugMode(false) {
     }

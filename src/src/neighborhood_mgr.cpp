@@ -108,7 +108,7 @@ void NeighborhoodMgr::materialize(const std::vector<SpatialInstance>& instances,
                     if (isNeighbor(s, s_prime, distanceThreshold)) {
                         if (s->type < s_prime->type) {
                             this->allNeighbors[s].addBN(s_prime);
-                        } else if (s->type < s_prime->type){
+                        } else if (s->type > s_prime->type) {
                             this->allNeighbors[s].addSN(s_prime);
                         }
                     }
@@ -144,4 +144,25 @@ void NeighborhoodMgr::printResults() const {
         for (const auto* n : nl.SNs) std::cout << n->id << " ";
         std::cout << "\n";
     }
+}
+
+std::vector<instanceID> NeighborhoodMgr::getBigNeighbors(const instanceID& id) const {
+    const SpatialInstance* key = nullptr;
+    // Linear search for the instance string ID
+    for (const auto& pair : allNeighbors) {
+        if (pair.first->id == id) {
+            key = pair.first;
+            break;
+        }
+    }
+
+    if (!key) return {};
+
+    const auto& bns = allNeighbors.at(key).BNs;
+    std::vector<instanceID> res;
+    res.reserve(bns.size());
+    for (const auto* n : bns) {
+        res.push_back(n->id);
+    }
+    return res;
 }
